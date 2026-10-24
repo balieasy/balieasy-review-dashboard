@@ -1,0 +1,11 @@
+import {build} from 'esbuild';
+import assert from 'node:assert/strict';
+await build({entryPoints:['app/google-api-error.ts'],bundle:true,format:'esm',platform:'node',outfile:'.sites-runtime/tests/google-api-error.mjs'});
+const {googleApiError,GoogleApiError}=await import('../.sites-runtime/tests/google-api-error.mjs');
+const response=(error,status=400)=>Response.json({error},{status});
+let error=await googleApiError(response({status:'INVALID_ARGUMENT',message:'Request contains an invalid argument.',details:[{'@type':'type.googleapis.com/google.mybusiness.v4.ValidationError',errorDetails:[{field:'locationAssociation.category',message:"Photo tag 'product' does not apply to this location",value:'private-upload-ref'}]}]}),'menerbitkan media');
+assert(error instanceof GoogleApiError);assert.equal(error.status,400);assert(error.message.includes("Photo tag 'product'"));assert(error.message.includes('menerbitkan media'));assert(!error.message.includes('private-upload-ref'));console.log('PASS legacy Business Profile validation details explain the category and stage without raw upload values');
+error=await googleApiError(response({status:'INVALID_ARGUMENT',message:'Invalid field',details:[{fieldViolations:[{field:'dataRef',description:'bad ref at https://googleapis.com/private?token=secret'}]}]}),'mengirim file');assert(error.message.includes('dataRef'));assert(!error.message.includes('token=secret'));assert(error.message.includes('[tautan]'));console.log('PASS modern Google field violations remain actionable and private URLs are removed');
+error=await googleApiError(response({message:'Bearer abcdef ya29.hidden access_token=secret refresh_token=secret2 client_secret=hidden'}),'mengirim file');for(const secret of ['abcdef','ya29.hidden','=secret','=hidden'])assert(!error.message.includes(secret));console.log('PASS token and secret echoes are redacted before storage and display');
+error=await googleApiError(new Response('<html>internal proxy details</html>',{status:403}),'menyiapkan upload');assert(error.message.includes('403'));assert(error.message.includes('Periksa izin akun'));assert(!error.message.includes('proxy details'));console.log('PASS non-JSON failures retain HTTP status, stage and permission guidance without leaking proxy responses');
+console.log('Verified 4 Google API error checks.');
