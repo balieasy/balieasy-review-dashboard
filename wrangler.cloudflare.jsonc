@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "balieasy-review-dashboard",
+  "main": "build/cloudflare-worker.ts",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "DASHBOARD_ORIGIN": "",
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": "",
+    "DASHBOARD_ALLOWED_EMAILS": ""
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "balieasy-dashboard",
+    "database_id": "00000000-0000-4000-8000-000000000000",
+    "migrations_dir": "drizzle"
+  }],
+  "observability": {"enabled": false}
+}

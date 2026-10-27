@@ -12,6 +12,8 @@ Jangan commit JSON OAuth Google, `.dev.vars`, `.env*`, kunci enkripsi, token, fi
 
 Menghubungkan GitHub hanya menyimpan kode; tindakan ini tidak menerbitkan dashboard atau menghubungkan Vercel, Cloudflare produksi, maupun Supabase secara otomatis.
 
+Persiapan hosting Cloudflare Free dengan D1 dan login privat Cloudflare Access tersedia di [CLOUDFLARE.md](./CLOUDFLARE.md). Jalur `build:cloudflare` terpisah dari preview lokal. Deployment menunggu konfigurasi akun/database/access yang benar; tidak mengaktifkan paket berbayar.
+
 ## Menghubungkan Google
 
 1. Pastikan proyek `intense-plate-511502-n3` / `734102733223` telah disetujui dan API Google My Business, Account Management, serta Business Information aktif.
