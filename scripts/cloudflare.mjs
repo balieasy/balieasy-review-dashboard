@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, unlinkSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import './sites-env.mjs';
 
@@ -9,6 +9,7 @@ const source=JSON.parse(readFileSync(new URL('../wrangler.cloudflare.jsonc',impo
 if (action!=='build') {
   const compiled=JSON.parse(readFileSync(new URL('../dist/server/wrangler.json',import.meta.url),'utf8'));
   if (compiled.name!=='balieasy-review-dashboard') throw new Error('Run npm run build:cloudflare first.');
+  if (readdirSync(new URL('../dist/server/',import.meta.url)).some(name=>name==='.dev.vars'||name.startsWith('.dev.vars.'))) throw new Error('Local secret files must not remain in the deploy output. Rebuild with build:cloudflare.');
   if (compiled.assets?.run_worker_first!==true || compiled.assets?.binding!=='ASSETS') throw new Error('Keep authentication before static assets and bind ASSETS.');
   if (JSON.stringify(compiled.vars)!==JSON.stringify(source.vars)) throw new Error('Configuration changed. Run npm run build:cloudflare again.');
   const database=compiled.d1_databases?.find(item=>item.binding==='DB');
@@ -26,4 +27,12 @@ const command=action==='build'
   : [fileURLToPath(new URL('../node_modules/wrangler/bin/wrangler.js',import.meta.url)),...(action==='migrate'?['d1','migrations','apply','DB','--remote','--config','wrangler.cloudflare.jsonc']:['deploy','--config','dist/server/wrangler.json'])];
 const result=spawnSync(process.execPath,command,{stdio:'inherit',env:{...process.env,BALIEASY_DEPLOY_TARGET:'cloudflare'}});
 if (result.error) throw result.error;
+if (action==='build'&&result.status===0) {
+  // The Vite plugin copies local dev variables for preview. Production secrets
+  // live in Cloudflare; discard only the generated copies, preserving the source.
+  const output=new URL('../dist/server/',import.meta.url);
+  if (existsSync(output)) for (const name of readdirSync(output)) {
+    if (name==='.dev.vars'||name.startsWith('.dev.vars.')) unlinkSync(new URL(name,output));
+  }
+}
 process.exit(result.status??1);

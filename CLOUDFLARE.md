@@ -1,14 +1,14 @@
 # Cloudflare Free untuk BaliEasy
 
-Hosting memakai Cloudflare Workers Free dan D1 pada akun BaliEasy, dengan login Google yang dibatasi ke **hello.balieasy@gmail.com**. Tidak perlu Cloudflare Access/Zero Trust atau kartu untuk jalur login ini. Kuota Free tetap perlu diuji dengan beban nyata.
+Hosting memakai Cloudflare Workers Free dan D1 pada akun BaliEasy, dengan login Google yang dibatasi ke **hello@balieasy.com**. Tidak perlu Cloudflare Access/Zero Trust atau kartu untuk jalur login ini. Kuota Free tetap perlu diuji dengan beban nyata.
 
 ## Status, 28 Oktober 2026
 
-- D1 `balieasy-dashboard` telah dibuat di Asia Pacific, ID `75e120fe-f31c-4f00-a8ee-1c7a4454ea47`. Database online masih kosong.
+- D1 `balieasy-dashboard` telah dibuat di Asia Pacific, ID `75e120fe-f31c-4f00-a8ee-1c7a4454ea47`. Tabel `oauth_states`, `settings`, `snapshots` dan catatan migrasi `0000_open_loki.sql` sudah dibuat; data bisnis online masih kosong.
 - Worker `balieasy-review-dashboard` telah dibuat dengan placeholder Hello World, tanpa data/kredensial bisnis.
 - Alamat: `https://balieasy-review-dashboard.hello-balieasy.workers.dev`.
 - 15 pengujian login dengan Google tiruan, pengujian kriptografi di workerd, 23 regresi backend, TypeScript, dan build standalone lolos.
-- Source dashboard belum dideploy. Login OAuth, secret runtime, migrasi D1, serta build GitHub masih perlu diselesaikan. Adanya placeholder tidak berarti dashboard sudah siap.
+- Source dashboard belum dideploy. Callback OAuth online sudah tersimpan. Secret runtime dan build GitHub masih menunggu langkah manual pemilik. Adanya placeholder tidak berarti dashboard sudah siap.
 
 ## Login Google khusus pemilik
 
@@ -16,7 +16,7 @@ Login dashboard meminta scope `openid email`, terpisah dari izin `business.manag
 
 State dan PKCE melindungi alur login. Cookie state berlaku 10 menit; sesi terenkripsi berlaku 8 jam. Cookie memakai Secure, HttpOnly, SameSite=Lax dan awalan `__Host-`. Token Google hanya digunakan untuk memverifikasi login, tidak disimpan sebagai sesi browser. Keluar memerlukan konfirmasi dengan POST dari origin yang sama. Header identitas pengunjung diganti setelah autentikasi. Konfigurasi belum lengkap menghasilkan 503; API tanpa sesi valid menghasilkan 401. Menghapus email dari daftar izin juga menolak sesi yang sudah dibuat.
 
-Di Google Auth Platform > Clients, gunakan OAuth client Web dari proyek yang sudah disetujui, atau client Web khusus login dalam proyek yang sama. Audience harus mengizinkan `hello.balieasy@gmail.com`; untuk aplikasi External berstatus Testing, tambahkan akun ini sebagai test user.
+Di Google Auth Platform > Clients, gunakan OAuth client Web dari proyek yang sudah disetujui, atau client Web khusus login dalam proyek yang sama. Aplikasi lama bertipe Internal; akun `hello@balieasy.com` dipilih pengguna agar tetap memakai aplikasi Internal tersebut. Akun Gmail di luar organisasi tidak bisa memakainya.
 
 Tambahkan kedua redirect URI persis berikut:
 
@@ -43,7 +43,7 @@ npm run migrate:cloudflare
 npm run deploy:cloudflare
 ```
 
-`check:cloudflare` menolak konfigurasi login kosong, database contoh, atau output build yang berbeda dari source. Migrasi memakai `drizzle/` pada D1 remote. Deploy memakai `dist/server/wrangler.json`, terpisah dari preview lokal/Sites.
+`check:cloudflare` menolak konfigurasi login kosong, database contoh, atau output build yang berbeda dari source. Migrasi memakai `drizzle/` pada D1 remote. Deploy memakai `dist/server/wrangler.json`, terpisah dari preview lokal/Sites. Build standalone menghapus salinan `.dev.vars` dari output server; file rahasia sumber lokal tetap tersimpan. Pemeriksaan sebelum deploy menolak output yang masih memuat salinan file secret lokal.
 
 Untuk pembaruan source otomatis, hubungkan hanya repository private `balieasy/balieasy-review-dashboard` ke Workers Builds setelah branch siap. Build command `npm run build:cloudflare`; deploy command `npm run check:cloudflare && npm run migrate:cloudflare && npm run deploy:cloudflare`. Izin aplikasi GitHub dibatasi ke repository ini. Preview branch tidak diaktifkan agar callback/authentication tidak memakai hostname yang berbeda. Deploy kode otomatis berbeda dari sinkronisasi review otomatis; source ini belum menambahkan jadwal sinkron Google.
 
