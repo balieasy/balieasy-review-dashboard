@@ -12,7 +12,7 @@ Jangan commit JSON OAuth Google, `.dev.vars`, `.env*`, kunci enkripsi, token, fi
 
 Menghubungkan GitHub hanya menyimpan kode; tindakan ini tidak menerbitkan dashboard atau menghubungkan Vercel, Cloudflare produksi, maupun Supabase secara otomatis.
 
-Persiapan hosting Cloudflare Free dengan D1 dan login privat Cloudflare Access tersedia di [CLOUDFLARE.md](./CLOUDFLARE.md). Jalur `build:cloudflare` terpisah dari preview lokal. Deployment menunggu konfigurasi akun/database/access yang benar; tidak mengaktifkan paket berbayar.
+Persiapan hosting Cloudflare Free dengan D1 dan login Google khusus email yang diizinkan tersedia di [CLOUDFLARE.md](./CLOUDFLARE.md). Jalur `build:cloudflare` terpisah dari preview lokal. Deployment menunggu konfigurasi OAuth dan secret runtime yang benar; tidak mengaktifkan paket berbayar.
 
 ## Menghubungkan Google
 

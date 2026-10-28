@@ -9,13 +9,14 @@ const source=JSON.parse(readFileSync(new URL('../wrangler.cloudflare.jsonc',impo
 if (action!=='build') {
   const compiled=JSON.parse(readFileSync(new URL('../dist/server/wrangler.json',import.meta.url),'utf8'));
   if (compiled.name!=='balieasy-review-dashboard') throw new Error('Run npm run build:cloudflare first.');
+  if (compiled.assets?.run_worker_first!==true || compiled.assets?.binding!=='ASSETS') throw new Error('Keep authentication before static assets and bind ASSETS.');
   if (JSON.stringify(compiled.vars)!==JSON.stringify(source.vars)) throw new Error('Configuration changed. Run npm run build:cloudflare again.');
   const database=compiled.d1_databases?.find(item=>item.binding==='DB');
   if (!database || !/^[a-f0-9-]{36}$/.test(database.database_id) || database.database_id==='00000000-0000-4000-8000-000000000000') throw new Error('Set the real Cloudflare D1 database ID before deploying.');
   const {build}=await import('esbuild');
-  await build({entryPoints:['lib/cloudflare-access.ts'],bundle:true,platform:'node',format:'esm',outfile:'.sites-runtime/tests/cloudflare-access-check.mjs'});
-  const {accessSettings}=await import('../.sites-runtime/tests/cloudflare-access-check.mjs');
-  accessSettings(compiled.vars);
+  await build({entryPoints:['lib/google-dashboard-auth.ts'],bundle:true,platform:'node',format:'esm',outfile:'.sites-runtime/tests/google-login-check.mjs'});
+  const {googleLoginSettings}=await import('../.sites-runtime/tests/google-login-check.mjs');
+  googleLoginSettings(compiled.vars);
   if (database.database_id!==source.d1_databases[0]?.database_id) throw new Error('Database configuration changed. Rebuild before deploying.');
   console.log('Cloudflare production configuration is ready.');
 }

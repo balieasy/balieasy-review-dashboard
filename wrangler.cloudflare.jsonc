@@ -1,22 +1,32 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "balieasy-review-dashboard",
+  "account_id": "2efe81abdc023c5cbdb97c2764982ad7",
   "main": "build/cloudflare-worker.ts",
   "compatibility_date": "2026-05-15",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "preview_urls": false,
   "vars": {
-    "DASHBOARD_ORIGIN": "",
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": "",
-    "DASHBOARD_ALLOWED_EMAILS": ""
+    "DASHBOARD_ORIGIN": "https://balieasy-review-dashboard.hello-balieasy.workers.dev",
+    "GOOGLE_LOGIN_CLIENT_ID": "734102733223-tajdr0ds8324ogfdt0j04cs043vt8e7q.apps.googleusercontent.com",
+    "DASHBOARD_ALLOWED_EMAILS": "hello.balieasy@gmail.com"
   },
-  "d1_databases": [{
-    "binding": "DB",
-    "database_name": "balieasy-dashboard",
-    "database_id": "00000000-0000-4000-8000-000000000000",
-    "migrations_dir": "drizzle"
-  }],
-  "observability": {"enabled": false}
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "balieasy-dashboard",
+      "database_id": "75e120fe-f31c-4f00-a8ee-1c7a4454ea47",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "observability": {
+    "enabled": false
+  },
+  "assets": {
+    "binding": "ASSETS",
+    "run_worker_first": true
+  }
 }

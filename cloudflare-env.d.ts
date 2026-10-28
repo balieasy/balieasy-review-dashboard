@@ -4,8 +4,8 @@ declare namespace Cloudflare {
     BUCKET?: R2Bucket;
     DATA_ENCRYPTION_KEY: string;
     DASHBOARD_ORIGIN?: string;
-    ACCESS_TEAM_DOMAIN?: string;
-    ACCESS_AUD?: string;
+    GOOGLE_LOGIN_CLIENT_ID?: string;
+    GOOGLE_LOGIN_CLIENT_SECRET?: string;
     DASHBOARD_ALLOWED_EMAILS?: string;
   }
 }
