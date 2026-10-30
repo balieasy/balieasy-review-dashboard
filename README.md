@@ -12,7 +12,7 @@ Jangan commit JSON OAuth Google, `.dev.vars`, `.env*`, kunci enkripsi, token, fi
 
 Menghubungkan GitHub hanya menyimpan kode; tindakan ini tidak menerbitkan dashboard atau menghubungkan Vercel, Cloudflare produksi, maupun Supabase secara otomatis.
 
-Persiapan hosting Cloudflare Free dengan D1 dan login Google khusus email yang diizinkan tersedia di [CLOUDFLARE.md](./CLOUDFLARE.md). Jalur `build:cloudflare` terpisah dari preview lokal. Deployment menunggu konfigurasi OAuth dan secret runtime yang benar; tidak mengaktifkan paket berbayar.
+Dashboard online: [BaliEasy Review Monitor](https://balieasy-review-dashboard.hello-balieasy.workers.dev), dengan login khusus `hello@balieasy.com`. Hosting memakai Cloudflare Workers Free dan D1; detail ada di [CLOUDFLARE.md](./CLOUDFLARE.md). Pengguna memilih deploy manual, sehingga push GitHub belum otomatis memperbarui dashboard online. Jalur `build:cloudflare` terpisah dari preview lokal. Data lokal belum dimigrasikan ke database online.
 
 ## Menghubungkan Google
 

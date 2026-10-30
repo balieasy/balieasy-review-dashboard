@@ -2,13 +2,15 @@
 
 Hosting memakai Cloudflare Workers Free dan D1 pada akun BaliEasy, dengan login Google yang dibatasi ke **hello@balieasy.com**. Tidak perlu Cloudflare Access/Zero Trust atau kartu untuk jalur login ini. Kuota Free tetap perlu diuji dengan beban nyata.
 
-## Status, 28 Oktober 2026
+## Status, 30 Oktober 2026
 
 - D1 `balieasy-dashboard` telah dibuat di Asia Pacific, ID `75e120fe-f31c-4f00-a8ee-1c7a4454ea47`. Tabel `oauth_states`, `settings`, `snapshots` dan catatan migrasi `0000_open_loki.sql` sudah dibuat; data bisnis online masih kosong.
-- Worker `balieasy-review-dashboard` telah dibuat dengan placeholder Hello World, tanpa data/kredensial bisnis.
+- Dashboard sudah dideploy ke Worker `balieasy-review-dashboard`. Versi produksi: `c16f9be6-f69a-47d7-b962-4f10d9904134`.
 - Alamat: `https://balieasy-review-dashboard.hello-balieasy.workers.dev`.
 - 15 pengujian login dengan Google tiruan, pengujian kriptografi di workerd, 23 regresi backend, TypeScript, dan build standalone lolos.
-- Source dashboard belum dideploy. Callback OAuth online sudah tersimpan. Secret runtime dan build GitHub masih menunggu langkah manual pemilik. Adanya placeholder tidak berarti dashboard sudah siap.
+- Kedua callback OAuth dan secret runtime telah dipasang. Halaman `/auth/login` terverifikasi HTTP 200; `/api/data` tanpa sesi terverifikasi HTTP 401, keduanya `private, no-store`. Login dengan akun Google asli dan sinkronisasi online belum diverifikasi.
+- Pengguna memilih **deploy manual**. Akun/repository GitHub sudah diizinkan, tetapi Workers Builds tidak dihubungkan. Push GitHub tidak otomatis mengubah versi online.
+- Token deploy dibatasi ke Workers Scripts: Edit, D1: Edit, dan Account Settings: Read pada akun BaliEasy. Izin Workers Builds Configuration tidak ditambahkan. Nilai token tidak masuk source atau ZIP.
 
 ## Login Google khusus pemilik
 
@@ -45,7 +47,7 @@ npm run deploy:cloudflare
 
 `check:cloudflare` menolak konfigurasi login kosong, database contoh, atau output build yang berbeda dari source. Migrasi memakai `drizzle/` pada D1 remote. Deploy memakai `dist/server/wrangler.json`, terpisah dari preview lokal/Sites. Build standalone menghapus salinan `.dev.vars` dari output server; file rahasia sumber lokal tetap tersimpan. Pemeriksaan sebelum deploy menolak output yang masih memuat salinan file secret lokal.
 
-Untuk pembaruan source otomatis, hubungkan hanya repository private `balieasy/balieasy-review-dashboard` ke Workers Builds setelah branch siap. Build command `npm run build:cloudflare`; deploy command `npm run check:cloudflare && npm run migrate:cloudflare && npm run deploy:cloudflare`. Izin aplikasi GitHub dibatasi ke repository ini. Preview branch tidak diaktifkan agar callback/authentication tidak memakai hostname yang berbeda. Deploy kode otomatis berbeda dari sinkronisasi review otomatis; source ini belum menambahkan jadwal sinkron Google.
+Pembaruan source otomatis belum diaktifkan, sesuai pilihan pengguna. Jika nanti diminta, hubungkan hanya repository private `balieasy/balieasy-review-dashboard` ke Workers Builds setelah izin token build disetujui. Build command `npm run build:cloudflare`; deploy command `npm run check:cloudflare && npm run migrate:cloudflare && npm run deploy:cloudflare`. Izin aplikasi GitHub dibatasi ke repository ini. Preview branch tidak diaktifkan agar callback/authentication tidak memakai hostname yang berbeda. Deploy kode otomatis berbeda dari sinkronisasi review otomatis; source ini belum menambahkan jadwal sinkron Google.
 
 ## Data lokal dan pengujian
 
