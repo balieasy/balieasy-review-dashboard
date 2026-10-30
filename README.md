@@ -12,7 +12,7 @@ Jangan commit JSON OAuth Google, `.dev.vars`, `.env*`, kunci enkripsi, token, fi
 
 Menghubungkan GitHub hanya menyimpan kode; tindakan ini tidak menerbitkan dashboard atau menghubungkan Vercel, Cloudflare produksi, maupun Supabase secara otomatis.
 
-Dashboard online: [BaliEasy Review Monitor](https://balieasy-review-dashboard.hello-balieasy.workers.dev), dengan login khusus `hello@balieasy.com`. Hosting memakai Cloudflare Workers Free dan D1; detail ada di [CLOUDFLARE.md](./CLOUDFLARE.md). Pengguna memilih deploy manual, sehingga push GitHub belum otomatis memperbarui dashboard online. Jalur `build:cloudflare` terpisah dari preview lokal. Data lokal belum dimigrasikan ke database online.
+Dashboard online: [BaliEasy Review Monitor](https://balieasy-review-dashboard.hello-balieasy.workers.dev), dengan login khusus `hello@balieasy.com` dan `esim@balieasy.com`. Hosting memakai Cloudflare Workers Free dan D1; detail ada di [CLOUDFLARE.md](./CLOUDFLARE.md). Pengguna memilih deploy manual, sehingga push GitHub belum otomatis memperbarui dashboard online. Jalur `build:cloudflare` terpisah dari preview lokal. Kedua email memakai workspace GBP BaliEasy yang sama. Koneksi sudah tersedia tanpa unggah JSON; sinkronisasi 19 lokasi pada 30 Oktober 2026 menghasilkan 1.396 review. Data diperbarui otomatis saat dibuka jika berumur minimal 15 menit; tombol Sinkronkan tetap tersedia. Draf, riwayat konten dan file bulk lokal belum dimigrasikan.
 
 ## Menghubungkan Google
 
@@ -35,7 +35,7 @@ Dashboard online: [BaliEasy Review Monitor](https://balieasy-review-dashboard.he
 - JSON config, token Google, dan snapshot review dienkripsi AES-GCM dalam D1. Kunci DATA_ENCRYPTION_KEY disediakan sebagai secret runtime Sites, tidak ada dalam source.
 - Semua endpoint data memerlukan identitas Site dan memakai user ID sebagai pemilik record. Writes memvalidasi Origin. OAuth memakai PKCE dan state sekali pakai, berlaku 10 menit, terikat ke user ID.
 - Cache review lebih dari 30 hari dihapus ketika endpoint data diakses. Konfigurasi OAuth dan refresh token disimpan sampai dicabut/diganti. Putuskan & hapus data mencabut token Google dan menghapus snapshot serta daftar lokasi; config OAuth tetap tersimpan.
-- Audience Site tetap owner-private. Dashboard tim memerlukan penyiapan access sharing terpisah bila diminta.
+- Audience Site tetap owner-private. Versi Cloudflare menggunakan daftar email spesifik dan workspace tim BaliEasy; versi preview/Sites tetap mempertahankan isolasi data penggunanya.
 
 ## Pengembangan
 

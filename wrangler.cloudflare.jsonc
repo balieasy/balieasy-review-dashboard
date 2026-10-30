@@ -12,7 +12,9 @@
   "vars": {
     "DASHBOARD_ORIGIN": "https://balieasy-review-dashboard.hello-balieasy.workers.dev",
     "GOOGLE_LOGIN_CLIENT_ID": "734102733223-tajdr0ds8324ogfdt0j04cs043vt8e7q.apps.googleusercontent.com",
-    "DASHBOARD_ALLOWED_EMAILS": "hello@balieasy.com"
+    "DASHBOARD_ALLOWED_EMAILS": "hello@balieasy.com,esim@balieasy.com",
+    "DASHBOARD_WORKSPACE": "balieasy",
+    "DASHBOARD_AUTO_SYNC": "true"
   },
   "d1_databases": [
     {
