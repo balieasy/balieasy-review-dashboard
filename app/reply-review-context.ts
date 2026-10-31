@@ -27,7 +27,8 @@ export function analyzeReview(comment:string,rating:number){
  const original=originalComment(comment).slice(0,16000);
  const clauses=original.split(/\n+|[.!?。！？;]+|\b(?:but|however|tetapi|tapi|namun|mais|aber|pero|но)\b/iu).map(s=>s.trim()).filter(Boolean);
  const issues=new Set<Detail>(),details=new Set<Detail>();let complaintFound=false;
- const hasRecovery=recovered.test(original)&&!/(?:but|tapi|namun).{0,35}(?:still|masih|not working|tidak bisa)/i.test(original);
+ const issueMentioned=/problem|issue|trouble|failed|stopped working|not working|masalah|kendala|gagal|tidak berfungsi|проблем|не работ/i.test(original);
+ const hasRecovery=issueMentioned&&(recovered.test(original)||/helped.{0,35}reactivat|reactivated (?:it|my|the)/i.test(original))&&!/(?:but|tapi|namun).{0,35}(?:still|masih|not working|tidak bisa)/i.test(original);
  let waitDuration='';
  for(const clause of clauses){
   const searchable=clause.normalize('NFD').replace(/\p{M}/gu,'');
