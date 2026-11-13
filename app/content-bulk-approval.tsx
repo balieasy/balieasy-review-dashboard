@@ -15,6 +15,7 @@ export default function BulkApproval({plan,connected,fileReady,inspecting,busy,a
   :'Persetujuan sudah dicentang. Klik tombol kirim untuk memulai.';
  return <div className="bulk-approval">
   <h3>3. Setujui & kirim</h3><p role="status">{message}</p>
+  {totals.uncertain>0&&<p role="alert">Hasil {totals.uncertain} lokasi belum pasti. Periksa galeri atau postingan lokasi tersebut di Google. Lokasi ini tidak dikirim ulang otomatis; lokasi lain yang menunggu dapat dilanjutkan.</p>}
   {(remaining>0||busy)&&<div className="studio-action-footer">
    <label className="approval-check"><input type="checkbox" aria-label="Setujui konten bulk dan semua lokasi tujuan" checked={approved} disabled={blocked} onChange={e=>onApprove(e.target.checked)}/><span>Saya sudah memeriksa konten dan seluruh lokasi dalam rencana ini, memiliki hak penggunaan, serta setuju mengirimnya ke lokasi yang dipilih.</span></label>
    <div className="bulk-actions">{busy?<button className="button" onClick={onStop}><Square size={13}/>Hentikan setelah lokasi ini</button>:<>

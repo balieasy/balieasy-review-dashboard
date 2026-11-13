@@ -1,7 +1,7 @@
 import {db,read,seal,open,hash,write,bulkFileScope} from './server';
 import type {Location} from './metrics';
 import {validateUpload,validatePost,type UploadMetadata} from './content-model';
-import {prepareUpload,publishPost,contentOperation,createPostDraftOnce,DuplicateMediaError,type ContentRecord} from './content-server';
+import {prepareUpload,publishPost,contentOperation,recoverStaleContentOperation,createPostDraftOnce,DuplicateMediaError,type ContentRecord} from './content-server';
 import {bulkTerminal,personalize,type BulkContentPlan,type BulkContentItem,type BulkItemState} from './content-bulk-model';
 const now=()=>new Date().toISOString(),key=(u:string,id:string)=>u+':content-bulk:'+id;
 const changed=(r:any)=>r.meta?.changes??r.changes??0;
@@ -44,8 +44,9 @@ export async function reconcileBulkContent(u:string,id:string){
   // Preparation cannot publish: its CAS must complete before either file bytes
   // or publishPost can be sent. Abandoned preparation can safely be queued again.
   if(item.state==='preparing'){if(Date.now()-Date.parse(item.updatedAt)>5*60000){items[index]={...item,state:'pending',updatedAt:now(),error:'Persiapan terhenti; siap dilanjutkan.'};dirty=true;}continue;}
-  const op=await operation(u,item.operationId);if(!op)continue;
+  let op=await operation(u,item.operationId);if(!op)continue;
   if(!samePayload(item,op)||item.operationVersion!==undefined&&op.version!==item.operationVersion){items[index]={...item,state:'uncertain',error:'Versi operasi berubah. Periksa hasil di Google sebelum melanjutkan.',updatedAt:now()};dirty=true;continue;}
+  if(op.state==='running')op=await recoverStaleContentOperation(u,item.operationId);
   let next:BulkItemState=item.state;
   if(op.state==='complete')next='complete';else if(op.state==='uncertain')next='uncertain';else if(op.state==='failed')next='failed';else if(op.state==='running')next='running';
   if(next!==item.state){items[index]={...item,state:next,error:op.error,updatedAt:now()};dirty=true;if(next==='complete')await write(u,'content-performance:'+item.locationId,null);}
