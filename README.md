@@ -166,7 +166,7 @@ Menu **Media & Posting** mengelola satu lokasi Google pada satu waktu. Pilih cab
 ### Upload foto/video
 
 1. Buka **Foto & video**, pilih JPG/PNG atau MP4, lalu periksa pratinjau, kategori, dan deskripsi.
-2. Foto: 10 KB–5 MB, minimal 250 × 250 piksel. Video MP4: maksimal 75 MB dan 30 detik, minimal 720p (sisi pendek 720, sisi panjang 1.280 piksel).
+2. Foto: 10 KB–5 MB, minimal 250 × 250 piksel. Video MP4: maksimal 75 MB. Dashboard menerima durasi dan resolusi lain, tetapi panduan Google menetapkan maksimal 30 detik dan minimal 720p; Google dapat menolak video yang tidak sesuai.
 3. Centang persetujuan penggunaan file, lalu klik **Upload ke Google**. Google dapat memproses atau meninjau media sebelum tampil publik.
 
 File dikirim langsung melalui server ke upload Google dengan streaming, bukan disimpan sebagai blob dalam D1. Server memeriksa ukuran, signature, dan SHA-256 sesuai pratinjau sebelum membuat media publik. Hash upload berhasil disimpan terenkripsi untuk mencegah upload file identik yang masih ada. Gambar pratinjau video Google bukan file video asli.
