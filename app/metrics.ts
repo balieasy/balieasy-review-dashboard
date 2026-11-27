@@ -1,5 +1,5 @@
 export type Review={id:string;name:string;rating:number;comment:string;created:string;updated?:string;replied:boolean;reply?:string;photos:number;videos:number;url?:string};
-export type Location={id:string;account:string;title:string;address:string;maps?:string;rating:number;total:number;reviews:Review[];synced?:string;coverage?:{fetched:number;reported:number;matches:boolean}};
+export type Location={id:string;account:string;title:string;address:string;maps?:string;mapPoint?:{latitude:number;longitude:number};rating:number;total:number;reviews:Review[];synced?:string;coverage?:{fetched:number;reported:number;matches:boolean}};
 export const zone='Asia/Makassar';
 const dateFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'});
 export function localDate(iso:string){return dateFormatter.format(new Date(iso));}

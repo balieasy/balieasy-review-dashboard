@@ -2,6 +2,7 @@ import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from './chatgpt-auth';
 import type { Location, Review } from './metrics';
 import { googleFetch } from './google-fetch';
+import { validMapPoint } from './location-map-links';
 import { encodeBase64 as b64 } from './base64';
 
 export const ORIGIN=env.DASHBOARD_ORIGIN||'https://balieasy-review-monitor.shevanan.chatgpt.site';
@@ -89,8 +90,8 @@ export async function discover(u:string){
  const token=await accessToken(u);const accounts=await paged('https://mybusinessaccountmanagement.googleapis.com/v1/accounts','accounts',token);const locations:Location[]=[];const seenAccounts=new Set<string>();
  for(let accountIndex=0;accountIndex<accounts.length;accountIndex++){const a=accounts[accountIndex];if(!/^accounts\/[a-zA-Z0-9_-]+$/.test(a.name)||seenAccounts.has(a.name))continue;seenAccounts.add(a.name);
  if(a.type==='ORGANIZATION'||a.type==='USER_GROUP'){const children=await paged('https://mybusinessaccountmanagement.googleapis.com/v1/accounts?parentAccount='+encodeURIComponent(a.name),'accounts',token);accounts.push(...children);continue;}
- const rows=await paged('https://mybusinessbusinessinformation.googleapis.com/v1/'+a.name+'/locations?readMask=name,title,storefrontAddress,metadata&pageSize=100','locations',token);
- for(const l of rows){if(!/^locations\/[a-zA-Z0-9_-]+$/.test(l.name))continue;if(locations.some(x=>x.id===l.name))continue;locations.push({id:l.name,account:a.name,title:l.title||l.name,address:(l.storefrontAddress?.addressLines||[]).join(', '),maps:l.metadata?.mapsUri||'',rating:0,total:0,reviews:[]});}}
+ const rows=await paged('https://mybusinessbusinessinformation.googleapis.com/v1/'+a.name+'/locations?readMask=name,title,storefrontAddress,metadata,latlng&pageSize=100','locations',token);
+ for(const l of rows){if(!/^locations\/[a-zA-Z0-9_-]+$/.test(l.name))continue;if(locations.some(x=>x.id===l.name))continue;locations.push({id:l.name,account:a.name,title:l.title||l.name,address:(l.storefrontAddress?.addressLines||[]).join(', '),maps:l.metadata?.mapsUri||'',mapPoint:validMapPoint(l.latlng)?l.latlng:undefined,rating:0,total:0,reviews:[]});}}
  await write(u,'locations',locations);const existing=await db().prepare('SELECT id FROM snapshots WHERE user=?').bind(u).all<{id:string}>();const allowedIds=new Set(locations.map(l=>u+':'+l.id));for(const row of existing.results){if(!allowedIds.has(row.id))await db().prepare('DELETE FROM snapshots WHERE id=? AND user=?').bind(row.id,u).run();}return locations;
 }
 export async function syncLocation(u:string,id:string){
@@ -113,5 +114,9 @@ export async function syncLocation(u:string,id:string){
 export async function data(u:string){
  await db().prepare('DELETE FROM snapshots WHERE user=? AND updated<?').bind(u,Date.now()-30*86400000).run();
  const locations=await read<Location[]>(u,'locations')||[];const rows=await db().prepare('SELECT value FROM snapshots WHERE user=?').bind(u).all<{value:string}>();const snapshots=await Promise.all(rows.results.map(r=>open<Location>(r.value)));
- return locations.map(l=>snapshots.find(s=>s.id===l.id)||l);
+ const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
+ return locations.map(location => {
+  const snapshot = byId.get(location.id);
+  return snapshot ? {...snapshot, maps: location.maps, mapPoint: location.mapPoint} : location;
+ });
 }
