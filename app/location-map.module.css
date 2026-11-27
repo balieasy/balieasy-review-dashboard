@@ -1,0 +1,176 @@
+.panel {
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+
+.header {
+  gap: 12px;
+}
+
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 8px 0;
+  color: #a6441c;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.external:hover {
+  text-decoration: underline;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(235px, 31%);
+  border-top: 1px solid #e9ebee;
+}
+
+.map {
+  display: grid;
+  background: #edf0ec;
+  min-height: 420px;
+}
+
+.map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.directory {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 420px;
+  min-width: 0;
+  padding: 12px;
+  border-left: 1px solid #e9ebee;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid #dce1e7;
+  border-radius: 8px;
+  color: #566575;
+}
+
+.search:focus-within {
+  outline: 2px solid #a6441c;
+  outline-offset: 1px;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #25292d;
+  font: inherit;
+  font-size: 12px;
+}
+
+.all, .location {
+  color: #343b43;
+  font: inherit;
+  cursor: pointer;
+}
+
+.all {
+  align-self: flex-start;
+  padding: 7px 10px;
+  border: 1px solid #e3e6e9;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.all[aria-pressed='true'], .location[aria-pressed='true'] {
+  background: #fff0e8;
+  color: #a6441c;
+}
+
+.list {
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+}
+
+.list li + li {
+  border-top: 1px solid #eef0f1;
+}
+
+.location {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  text-align: left;
+}
+
+.location:hover, .all:hover {
+  box-shadow: inset 0 0 0 1px #d59371;
+}
+
+.location:focus-visible, .all:focus-visible, .external:focus-visible {
+  outline: 2px solid #a6441c;
+  outline-offset: 1px;
+}
+
+.marker, .arrow {
+  flex-shrink: 0;
+  color: #a6441c;
+}
+
+.arrow {
+  margin-left: auto;
+}
+
+.description {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.description span, .empty {
+  color: #596672;
+  font-size: 11px;
+}
+
+.empty {
+  margin: 5px 8px;
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .map {
+    min-height: 320px;
+  }
+
+  .directory {
+    height: auto;
+    max-height: 280px;
+    border-top: 1px solid #e9ebee;
+    border-left: 0;
+  }
+}
