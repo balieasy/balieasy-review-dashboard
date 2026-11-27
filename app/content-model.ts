@@ -17,8 +17,8 @@ export function validateUpload(input:any):UploadMetadata{
  const photo=['image/jpeg','image/png'].includes(input.mime),video=input.mime==='video/mp4';
  if(!photo&&!video)throw new Error('Pilih JPG, PNG, atau video MP4.');
  if(!Number.isSafeInteger(input.size)||input.size<(photo?10240:1)||input.size>(photo?5:75)*1024*1024)throw new Error(photo?'Foto harus 10 KB–5 MB.':'Video maksimal 75 MB.');
- if(!Number.isFinite(input.width)||!Number.isFinite(input.height)||Math.min(input.width,input.height)<(photo?250:720)||Math.max(input.width,input.height)>30000||video&&Math.max(input.width,input.height)<1280)throw new Error(photo?'Foto minimal 250 × 250 piksel.':'Video minimal 720p (sisi pendek 720, sisi panjang 1.280 piksel).');
- if(video&&(!Number.isFinite(input.duration)||input.duration<=0||input.duration>30))throw new Error('Durasi video maksimal 30 detik.');
+ if(!Number.isFinite(input.width)||!Number.isFinite(input.height)||Math.min(input.width,input.height)<(photo?250:1)||Math.max(input.width,input.height)>30000)throw new Error(photo?'Foto minimal 250 × 250 piksel.':'Dimensi video tidak valid.');
+ if(video&&(!Number.isFinite(input.duration)||input.duration<=0))throw new Error('Durasi video tidak dapat dibaca.');
  if(!/^[a-f0-9]{64}$/.test(input.sha256)||!mediaCategories.some(([value])=>value===input.category)||video&&input.category!=='ADDITIONAL')throw new Error('Metadata upload tidak valid.');
  const description=typeof input.description==='string'?input.description.trim():'';if(description.length>1000)throw new Error('Deskripsi media maksimal 1.000 karakter.');
  return {locationId:input.locationId,filename:input.filename.trim(),mime:input.mime,size:input.size,width:input.width,height:input.height,duration:video?input.duration:0,sha256:input.sha256,category:input.category,description};

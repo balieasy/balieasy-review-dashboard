@@ -1,7 +1,7 @@
 import {db,read,seal,open,hash,write,bulkFileScope} from './server';
 import type {Location} from './metrics';
 import {validateUpload,validatePost,type UploadMetadata} from './content-model';
-import {prepareUpload,publishPost,contentOperation,createPostDraftOnce,DuplicateMediaError,type ContentRecord} from './content-server';
+import {prepareUpload,publishPost,contentOperation,recoverStaleContentOperation,createPostDraftOnce,DuplicateMediaError,type ContentRecord} from './content-server';
 import {bulkTerminal,personalize,type BulkContentPlan,type BulkContentItem,type BulkItemState} from './content-bulk-model';
 const now=()=>new Date().toISOString(),key=(u:string,id:string)=>u+':content-bulk:'+id;
 const changed=(r:any)=>r.meta?.changes??r.changes??0;
@@ -14,6 +14,7 @@ function approval(input:any){if(input?.approved!==true)throw new Error('Periksa 
 function state(items:BulkContentItem[]):BulkContentPlan['state']{return items.some(i=>['preparing','running'].includes(i.state))?'processing':items.every(i=>bulkTerminal(i.state))?'finished':'approved';}
 async function operation(u:string,id:string){try{return await contentOperation(u,id);}catch(e){if((e as Error).message==='Draf atau operasi tidak ditemukan.')return null;throw e;}}
 export async function bulkContentData(u:string){const locations=await read<Location[]>(u,'locations')||[],prefix=u+':content-bulk:',records=await db().prepare('SELECT value FROM settings WHERE substr(id,1,?)=?').bind(prefix.length,prefix).all<{value:string}>();const batches=await Promise.all(records.results.map(r=>open<BulkContentPlan>(r.value)));return {fileScope:await bulkFileScope(u),locations:locations.map(l=>({id:l.id,title:l.title,address:l.address,maps:l.maps})),batches:batches.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt))};}
+export async function deleteBulkContent(u:string,input:any){const old=await get(u,input.id);expected(old,input);if(old.plan.items.some(i=>['preparing','running','ready'].includes(i.state)))throw new Error('Ada lokasi yang masih diproses. Periksa status bulk sebelum menghapus rencana.');const result=await db().prepare('DELETE FROM settings WHERE id=? AND value=?').bind(key(u,input.id),old.value).run();if(!changed(result))throw new Error('Rencana berubah di tab lain. Muat ulang status bulk.');return {id:input.id};}
 export async function saveBulkContent(u:string,input:any){
  if(!/^[a-zA-Z0-9-]{16,80}$/.test(input.requestId||'')||!['media','post'].includes(input.kind)||!Array.isArray(input.locationIds)||input.locationIds.length<1||input.locationIds.length>100||new Set(input.locationIds).size!==input.locationIds.length)throw new Error('Pilih 1–100 lokasi unik untuk satu bulk.');
  const locations=await read<Location[]>(u,'locations')||[],id=await hash('bulk:'+input.requestId),createdAt=now(),items:BulkContentItem[]=[];
@@ -43,8 +44,9 @@ export async function reconcileBulkContent(u:string,id:string){
   // Preparation cannot publish: its CAS must complete before either file bytes
   // or publishPost can be sent. Abandoned preparation can safely be queued again.
   if(item.state==='preparing'){if(Date.now()-Date.parse(item.updatedAt)>5*60000){items[index]={...item,state:'pending',updatedAt:now(),error:'Persiapan terhenti; siap dilanjutkan.'};dirty=true;}continue;}
-  const op=await operation(u,item.operationId);if(!op)continue;
+  let op=await operation(u,item.operationId);if(!op)continue;
   if(!samePayload(item,op)||item.operationVersion!==undefined&&op.version!==item.operationVersion){items[index]={...item,state:'uncertain',error:'Versi operasi berubah. Periksa hasil di Google sebelum melanjutkan.',updatedAt:now()};dirty=true;continue;}
+  if(op.state==='running')op=await recoverStaleContentOperation(u,item.operationId);
   let next:BulkItemState=item.state;
   if(op.state==='complete')next='complete';else if(op.state==='uncertain')next='uncertain';else if(op.state==='failed')next='failed';else if(op.state==='running')next='running';
   if(next!==item.state){items[index]={...item,state:next,error:op.error,updatedAt:now()};dirty=true;if(next==='complete')await write(u,'content-performance:'+item.locationId,null);}

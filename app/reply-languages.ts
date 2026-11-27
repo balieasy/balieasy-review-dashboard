@@ -18,7 +18,7 @@ const strong:Partial<Record<Language,string>>={
  en:'thanks thank helpful friendly recommend recommended great good amazing awesome lovely excellent',
  id:'terima kasih makasih pelayanan sangat ramah membantu bagus cepat mudah banget mantap harga sabar saya kami baik',
  de:'danke dankeschon freundlich freundliche freundlichen hilfreich empfehle empfehlen empfehlenswert schnell schnelle schnell kompetent zufrieden ausgezeichnet immer alles sehr',
- fr:'merci beaucoup recommande recommander recommande gentillesse sympathique aimable rapide equipe efficace accueil parfait parfaite tres avec pour',
+ fr:'merci beaucoup recommande recommander recommande gentillesse sympathique aimable rapide equipe efficace accueil parfait parfaite tres avec pour carte chere moins aeroport vous avez cette',
  es:'gracias recomiendo recomendamos amable amables excelente excelente rapido rapida servicio atencion ayuda muy todo todos',
  it:'grazie consiglio consigliato gentile gentili veloce veloci servizio ottimo ottima personale molto tutto',
  pt:'obrigado obrigada recomendo recomendo atendimento equipe simpatico simpatica rapido rapida otimo otima muito tudo',
@@ -45,7 +45,7 @@ export function originalLanguage(comment:string):{language:Language|null;reason:
  boost('id',/\b(terima\s+kasih|makasih|pelayanan|ramah|mantap)\b/i);
  boost('en',/\b(thank\s+you|thanks|helpful|friendly|recommend|great|awesome|amazing)\b/i);
  boost('de',/\b(danke|dankeschön|empfehlenswert|freundlich\w*|empfehle\w*)\b/i);
- boost('fr',/\b(merci|beaucoup|recommande\w*|gentillesse)\b/i);
+ boost('fr',/\b(merci|beaucoup|recommande\w*|gentillesse)\b|carte\s+SIM|moins ch[eè]re|[àa] l.a[eé]roport/i);
  boost('es',/\b(gracias|recomiendo|atención)\b/i);
  boost('it',/\b(grazie|consiglio|consigliato)\b/i);
  boost('pt',/\b(obrigad[oa]|recomendo|atendimento)\b/i);

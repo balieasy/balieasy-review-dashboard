@@ -109,6 +109,13 @@ export async function publishPost(u:string,input:any){approved(input);let old=aw
 }
 
 export async function contentOperation(u:string,id:string){const op=(await getRecord(u,id)).record;await owned(u,op.locationId);return op;}
+export async function recoverStaleContentOperation(u:string,id:string){
+ const old=await getRecord(u,id);await owned(u,old.record.locationId);
+ const updated=Date.parse(old.record.updatedAt);
+ if(!['upload','post'].includes(old.record.kind)||old.record.state!=='running'||!Number.isFinite(updated)||Date.now()-updated<30*60000)return old.record;
+ const record:ContentRecord={...old.record,state:'uncertain',updatedAt:now(),error:'Proses terhenti dan hasil di Google belum pasti. Periksa lokasi ini di Google; dashboard tidak mengirim ulang secara otomatis.'};
+ try{return (await replace(u,old,record)).record;}catch(e){if((e as Error).message!=='Data berubah di tab lain. Muat ulang sebelum melanjutkan.')throw e;return contentOperation(u,id);}
+}
 export async function createPostDraftOnce(u:string,id:string,input:any){
  if(!/^[a-zA-Z0-9_-]{43}$/.test(id))throw new Error('ID draf tidak valid.');
  const payload=validatePost(input);if(payload.name)throw new Error('Bulk hanya membuat postingan baru.');await owned(u,payload.locationId);
