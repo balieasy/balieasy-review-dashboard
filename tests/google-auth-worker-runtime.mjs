@@ -1,12 +1,26 @@
 // Run after google-dashboard-auth.mjs creates the isolated test worker bundle.
 import assert from 'node:assert/strict';
-import {Miniflare} from 'miniflare';
+import {convertV4MiniflareOptions, Miniflare} from 'miniflare';
 import {EncryptJWT} from 'jose';
 
 const origin='https://dashboard.example.workers.dev';
 const key=crypto.getRandomValues(new Uint8Array(32));
 const client='test.apps.googleusercontent.com';
-const mf=new Miniflare({modules:true,scriptPath:'.sites-runtime/tests/google-worker-test.mjs',compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],port:0,inspectorPort:0,bindings:{DASHBOARD_ORIGIN:origin,GOOGLE_LOGIN_CLIENT_ID:client,GOOGLE_LOGIN_CLIENT_SECRET:'synthetic-test-only',DASHBOARD_ALLOWED_EMAILS:'owner@example.com',DATA_ENCRYPTION_KEY:Buffer.from(key).toString('base64')}});
+const mf = new Miniflare(convertV4MiniflareOptions({
+  port: 0,
+  inspectorPort: 0,
+  modules: true,
+  scriptPath: '.sites-runtime/tests/google-worker-test.mjs',
+  compatibilityDate: '2026-05-15',
+  compatibilityFlags: ['nodejs_compat'],
+  bindings: {
+    DASHBOARD_ORIGIN: origin,
+    GOOGLE_LOGIN_CLIENT_ID: client,
+    GOOGLE_LOGIN_CLIENT_SECRET: 'synthetic-test-only',
+    DASHBOARD_ALLOWED_EMAILS: 'owner@example.com',
+    DATA_ENCRYPTION_KEY: Buffer.from(key).toString('base64'),
+  },
+}));
 try {
   const page=await mf.dispatchFetch(origin+'/auth/login');
   assert.equal(page.status,200);assert.match(await page.text(),/Masuk dengan Google/);
